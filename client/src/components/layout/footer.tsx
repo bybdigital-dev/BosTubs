@@ -50,6 +50,20 @@ export function Footer() {
           <p className="text-cedar-200" data-testid="footer-copyright">
             &copy; 2024 BosTubs. All rights reserved. | Luxury hot tub rentals in Pretoria
           </p>
+          
+          <p>
+            Developed by{" "}
+            <a
+              href="https://buildyourbrand.web.za/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              BYB Digital
+            </a>
+          </p>
+
+          
         </div>
       </div>
     </footer>
