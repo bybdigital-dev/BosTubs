@@ -18,15 +18,15 @@ import NotFound from "@/pages/not-found";
 
 function AppRoutes() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/how-it-works" component={HowItWorks} />
-      <Route path="/gallery" component={Gallery} />
-      <Route path="/pricing" component={Pricing} />
-      <Route path="/faq" component={FAQ} />
-      <Route path="/contact" component={Contact} />
-      <Route component={NotFound} />
-    </Switch>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/how-it-works" component={HowItWorks} />
+        <Route path="/gallery" component={Gallery} />
+        <Route path="/pricing" component={Pricing} />
+        <Route path="/faq" component={FAQ} />
+        <Route path="/contact" component={Contact} />
+        <Route component={NotFound} />
+      </Switch>
   );
 }
 
@@ -35,12 +35,14 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <ScrollToTop />
         {/* Hash-based routing for GitHub Pages */}
         <WouterRouter hook={useHashLocation}>
+          <ScrollToTop />
           <AppRoutes />
         </WouterRouter>
       </TooltipProvider>
     </QueryClientProvider>
   );
 }
+
+
