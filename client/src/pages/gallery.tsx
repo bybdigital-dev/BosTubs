@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import bigyardimage from "@assets/Hottub_Yard_Far.jpg";
 import shinytub from "@assets/Hottub_Shine_Nature.jpg";
 import bluetub from "@assets/Blue_water_hottub.jpg";
-import bigtub from "@assets/Hottub_Yard_Big.jpeg";
+import bigtub from "@assets/Hottub_Yard_Big.jpg";
 import cementtub from "@assets/Hottub_Patio_Cement_Dark.jpg";
-import grasstub from "@assets/Hottub_Grass_Yard.jpeg";
+import grasstub from "@assets/Hottub_Grass_Yard.jpg";
 
 const galleryImages = [
   {
