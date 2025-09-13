@@ -199,7 +199,7 @@ export default function HowItWorks() {
               <Button 
                 size="lg"
                 variant="outline"
-                className="border-white text-white hover:bg-white/10 px-8 py-4 rounded-full font-semibold transition-colors duration-200"
+                className="border-white text-fire-500 hover:bg-white/10 px-8 py-4 rounded-full font-semibold transition-colors duration-200"
                 data-testid="button-view-gallery"
               >
                 View Gallery
