@@ -1,15 +1,43 @@
+import { useState } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
-import { ContactForm } from "@/components/ui/contact-form";
-import { Phone, Mail, MapPin } from "lucide-react";
+import { Phone, Mail, MapPin, Facebook, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Facebook, Instagram } from "lucide-react";
 
 export default function Contact() {
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // stop the default redirect
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    try {
+      setSubmitting(true);
+
+      // Send the form to FormSubmit in the background
+      await fetch(form.action, {
+        method: "POST",
+        body: formData,
+        // headers: { Accept: "application/json" }, // optional
+      });
+
+      // Show normal browser popup
+      alert("We will be with you shortly!");
+
+      // Clear the form
+      form.reset();
+    } catch (err) {
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-cream-100">
       <Navbar />
-      
+
       {/* Header */}
       <section className="pt-24 pb-12 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -29,6 +57,7 @@ export default function Contact() {
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Contact Form */}
             <form
+              onSubmit={handleSubmit}
               action="https://formsubmit.co/bac8734dc0bd39b84a63932fd5b645b4"
               method="POST"
               className="space-y-6 bg-white p-8 rounded-xl shadow-md"
@@ -97,7 +126,6 @@ export default function Contact() {
                 </div>
               </div>
 
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
                 <textarea
@@ -108,23 +136,24 @@ export default function Contact() {
                 ></textarea>
               </div>
 
-              {/* Formsubmit settings */}
+              {/* FormSubmit settings */}
               <input type="hidden" name="_captcha" value="false" />
               <input type="hidden" name="_template" value="table" />
-              <input type="hidden" name="_next" value="/form-success.html" />
+              {/* ⛔ Removed _next so there is no redirect */}
+              {/* <input type="hidden" name="_next" value="/form-success.html" /> */}
 
               <button
                 type="submit"
-                className="bg-fire-500 text-white font-semibold px-6 py-3 rounded-md hover:bg-fire-600 transition-colors"
+                disabled={submitting}
+                className="bg-fire-500 text-white font-semibold px-6 py-3 rounded-md hover:bg-fire-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Send Booking Request
+                {submitting ? "Sending..." : "Send Booking Request"}
               </button>
 
               <p className="text-sm text-gray-500 text-center mt-2">
                 We'll respond within 24 hours. For faster service, use WhatsApp.
               </p>
             </form>
-
 
             {/* Contact Information */}
             <div className="space-y-8">
@@ -237,7 +266,7 @@ export default function Contact() {
                 <p>Sunday: 8AM - 7PM</p>
               </div>
             </div>
-            
+
             <div className="bg-white rounded-xl p-6 text-center shadow-sm" data-testid="response-time">
               <div className="w-16 h-16 bg-water-400 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-white text-2xl">⚡</span>
@@ -249,7 +278,7 @@ export default function Contact() {
                 <p>Email: Within 24 hours</p>
               </div>
             </div>
-            
+
             <div className="bg-white rounded-xl p-6 text-center shadow-sm" data-testid="booking-advance">
               <div className="w-16 h-16 bg-cedar-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-white text-2xl">📅</span>
