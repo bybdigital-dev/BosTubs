@@ -29,7 +29,7 @@ export default function Contact() {
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Contact Form */}
             <form
-              action="https://formsubmit.co/bostubs@gmail.com"
+              action="https://formsubmit.co/bac8734dc0bd39b84a63932fd5b645b4"
               method="POST"
               className="space-y-6 bg-white p-8 rounded-xl shadow-md"
             >
