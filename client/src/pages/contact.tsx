@@ -62,10 +62,10 @@ export default function Contact() {
               method="POST"
               className="space-y-6 bg-white p-8 rounded-xl shadow-md"
             >
-              {/* Hidden fields for CC/BCC */}
+              {/* Hidden fields for CC/BCC 
               <input type="hidden" name="_cc" value="buildyourbranddigital@gmail..com" />
               <input type="hidden" name="_bcc" value="henripot@gmail.com" />
-
+*/}
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
