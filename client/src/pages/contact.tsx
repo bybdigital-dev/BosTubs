@@ -62,8 +62,9 @@ export default function Contact() {
               method="POST"
               className="space-y-6 bg-white p-8 rounded-xl shadow-md"
             >
-              {/* Hidden fields for CC/BCC 
+              
               <input type="hidden" name="_cc" value="buildyourbranddigital@gmail..com" />
+              {/* Hidden fields for CC/BCC 
               <input type="hidden" name="_bcc" value="henripot@gmail.com" />
 */}
               
