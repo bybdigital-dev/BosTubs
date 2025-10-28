@@ -1,165 +1,182 @@
-import { useState } from "react";
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
-import { Phone, Mail, MapPin, Facebook, Instagram } from "lucide-react";
-import { Button } from "@/components/ui/button";
+  import { useRef, useState } from "react";
+  import { Navbar } from "@/components/layout/navbar";
+  import { Footer } from "@/components/layout/footer";
+  import { Phone, Mail, MapPin, Facebook, Instagram } from "lucide-react";
+  import { Button } from "@/components/ui/button";
 
-export default function Contact() {
-  const [submitting, setSubmitting] = useState(false);
+  const WORKER_URL = "https://forms-worker.buildyourbranddigital.workers.dev/submit";
+  const FORM_ID = "bostubs-contact"; // <-- make sure this exists in KV
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // stop the default redirect
-    const form = e.currentTarget;
-    const formData = new FormData(form);
+  export default function Contact() {
+    const [submitting, setSubmitting] = useState(false);
+    const t0Ref = useRef(Date.now()); // anti-bot timer (set on first render)
 
-    try {
-      setSubmitting(true);
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const fd = new FormData(form);
 
-      // Send the form to FormSubmit in the background
-      await fetch(form.action, {
-        method: "POST",
-        body: formData,
-        // headers: { Accept: "application/json" }, // optional
-      });
+      // Build the payload your Worker expects
+      const data = Object.fromEntries(fd.entries());
 
-      // Show normal browser popup
-      alert("We will be with you shortly!");
+      // Compose "name" from first + last to satisfy Worker required fields
+      const firstName = (data.firstName || "").toString().trim();
+      const lastName = (data.lastName || "").toString().trim();
+      data.name = [firstName, lastName].filter(Boolean).join(" ");
 
-      // Clear the form
-      form.reset();
-    } catch (err) {
-      alert("Something went wrong. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+      // Required routing/anti-spam fields for your Worker
+      data.formId = FORM_ID;
+      data._t0 = t0Ref.current;
 
-  return (
-    <div className="min-h-screen bg-cream-100">
-      <Navbar />
+      try {
+        setSubmitting(true);
 
-      {/* Header */}
-      <section className="pt-24 pb-12 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-playfair font-bold text-cedar-600 mb-6">
-            Book Your Experience
-          </h1>
-          <p className="text-xl text-gray-600 leading-relaxed">
-            Ready for the ultimate relaxation? Get in touch to book your luxury wood-fired hot tub experience. 
-            We'll respond within 24 hours with availability and next steps.
-          </p>
-        </div>
-      </section>
+        const res = await fetch(WORKER_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
 
-      {/* Contact Form & Info */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12">
-            {/* Contact Form */}
-            <form
-              onSubmit={handleSubmit}
-              action="https://formsubmit.co/bac8734dc0bd39b84a63932fd5b645b4"
-              method="POST"
-              className="space-y-6 bg-white p-8 rounded-xl shadow-md"
-            >
-              
-              <input type="hidden" name="_cc" value="buildyourbranddigital@gmail..com" />
-              {/* Hidden fields for CC/BCC 
-              <input type="hidden" name="_bcc" value="henripot@gmail.com" />
-*/}
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
-                  <input
-                    type="text"
-                    name="firstName"
-                    required
-                    className="w-full border border-gray-300 rounded-md px-4 py-2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
-                  <input
-                    type="text"
-                    name="lastName"
-                    required
-                    className="w-full border border-gray-300 rounded-md px-4 py-2"
-                  />
-                </div>
-              </div>
+        const json = await res.json().catch(() => ({}));
+        if (res.ok && json.ok) {
+          alert("We will be with you shortly!");
+          form.reset();
+          // If you set "redirect" in KV, the Worker will 302 automatically.
+          // Otherwise you can manually redirect here if you want.
+          // window.location.href = "/thank-you";
+        } else {
+          alert(`Something went wrong. ${json?.error ? `Error: ${json.error}` : ""}`);
+        }
+      } catch (err) {
+        alert("Network error. Please try again.");
+      } finally {
+        setSubmitting(false);
+      }
+    };
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  className="w-full border border-gray-300 rounded-md px-4 py-2"
-                />
-              </div>
+    return (
+      <div className="min-h-screen bg-cream-100">
+        <Navbar />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  required
-                  placeholder="+27 12 345 6789"
-                  className="w-full border border-gray-300 rounded-md px-4 py-2"
-                />
-              </div>
+        {/* Header */}
+        <section className="pt-24 pb-12 bg-white">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 className="text-4xl md:text-6xl font-playfair font-bold text-cedar-600 mb-6">
+              Book Your Experience
+            </h1>
+            <p className="text-xl text-gray-600 leading-relaxed">
+              Ready for the ultimate relaxation? Get in touch to book your luxury wood-fired hot tub experience. 
+              We'll respond within 24 hours with availability and next steps.
+            </p>
+          </div>
+        </section>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Start Date *</label>
-                  <input
-                    type="date"
-                    name="startDate"
-                    required
-                    className="w-full border border-gray-300 rounded-md px-4 py-2"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">End Date *</label>
-                  <input
-                    type="date"
-                    name="endDate"
-                    required
-                    className="w-full border border-gray-300 rounded-md px-4 py-2"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                <textarea
-                  name="message"
-                  rows={4}
-                  className="w-full border border-gray-300 rounded-md px-4 py-2"
-                  placeholder="Tell us about your booking needs..."
-                ></textarea>
-              </div>
-
-              {/* FormSubmit settings */}
-              <input type="hidden" name="_captcha" value="false" />
-              <input type="hidden" name="_template" value="table" />
-              {/* ⛔ Removed _next so there is no redirect */}
-              {/* <input type="hidden" name="_next" value="/form-success.html" /> */}
-
-              <button
-                type="submit"
-                disabled={submitting}
-                className="bg-fire-500 text-white font-semibold px-6 py-3 rounded-md hover:bg-fire-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        {/* Contact Form & Info */}
+        <section className="py-20 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-12">
+              {/* Contact Form */}
+              <form
+                onSubmit={handleSubmit}
+                className="space-y-6 bg-white p-8 rounded-xl shadow-md"
               >
-                {submitting ? "Sending..." : "Send Booking Request"}
-              </button>
+                {/* Honeypot (hidden) */}
+                <input
+                  type="text"
+                  name="hp"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  style={{ display: "none" }}
+                />
 
-              <p className="text-sm text-gray-500 text-center mt-2">
-                We'll respond within 24 hours. For faster service, use WhatsApp.
-              </p>
-            </form>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      required
+                      className="w-full border border-gray-300 rounded-md px-4 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      required
+                      className="w-full border border-gray-300 rounded-md px-4 py-2"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
+                  <input
+                    type="email"
+                    name="email"
+                    required
+                    className="w-full border border-gray-300 rounded-md px-4 py-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    required
+                    placeholder="+27 12 345 6789"
+                    className="w-full border border-gray-300 rounded-md px-4 py-2"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Start Date *</label>
+                    <input
+                      type="date"
+                      name="startDate"
+                      required
+                      className="w-full border border-gray-300 rounded-md px-4 py-2"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">End Date *</label>
+                    <input
+                      type="date"
+                      name="endDate"
+                      required
+                      className="w-full border border-gray-300 rounded-md px-4 py-2"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                  <textarea
+                    name="message"
+                    rows={4}
+                    className="w-full border border-gray-300 rounded-md px-4 py-2"
+                    placeholder="Tell us about your booking needs..."
+                  ></textarea>
+                </div>
+
+                {/* Removed FormSubmit-specific fields (_cc, _captcha, _template) */}
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="bg-fire-500 text-white font-semibold px-6 py-3 rounded-md hover:bg-fire-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {submitting ? "Sending..." : "Send Booking Request"}
+                </button>
+
+                <p className="text-sm text-gray-500 text-center mt-2">
+                  We'll respond within 24 hours. For faster service, use WhatsApp.
+                </p>
+              </form>
 
             {/* Contact Information */}
             <div className="space-y-8">
