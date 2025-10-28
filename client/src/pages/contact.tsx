@@ -17,14 +17,14 @@
       const fd = new FormData(form);
       const data = Object.fromEntries(fd.entries());
 
-      // compose "name" from first + last to match Worker expectations
+      // compose "name" from first + last for the Worker
       const firstName = (data.firstName || "").toString().trim();
       const lastName  = (data.lastName  || "").toString().trim();
       data.name = [firstName, lastName].filter(Boolean).join(" ");
 
-      // worker routing + anti-bot
+      // worker routing + anti-bot (set BEFORE fetch)
       data.formId = FORM_ID;
-      data._t0 = window.__t0 || (window.__t0 = Date.now());
+      data._t0 = t0Ref.current; // or: window.__t0 || (window.__t0 = Date.now());
 
       try {
         setSubmitting(true);
@@ -35,7 +35,7 @@
           body: JSON.stringify(data),
         });
 
-        // If the Worker ever returns a redirect by mistake, bail out gracefully.
+        // If the Worker ever 302s by mistake, still show success + reset
         if (res.type === "opaqueredirect" || res.redirected) {
           alert("We will be with you shortly!");
           form.reset();
@@ -56,6 +56,7 @@
         setSubmitting(false);
       }
     };
+
 
     return (
       <div className="min-h-screen bg-cream-100">
