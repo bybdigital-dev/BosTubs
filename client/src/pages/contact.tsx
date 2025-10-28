@@ -15,18 +15,16 @@
       e.preventDefault();
       const form = e.currentTarget;
       const fd = new FormData(form);
-
-      // Build the payload your Worker expects
       const data = Object.fromEntries(fd.entries());
 
-      // Compose "name" from first + last to satisfy Worker required fields
+      // compose "name" from first + last to match Worker expectations
       const firstName = (data.firstName || "").toString().trim();
-      const lastName = (data.lastName || "").toString().trim();
+      const lastName  = (data.lastName  || "").toString().trim();
       data.name = [firstName, lastName].filter(Boolean).join(" ");
 
-      // Required routing/anti-spam fields for your Worker
+      // worker routing + anti-bot
       data.formId = FORM_ID;
-      data._t0 = t0Ref.current;
+      data._t0 = window.__t0 || (window.__t0 = Date.now());
 
       try {
         setSubmitting(true);
@@ -37,13 +35,18 @@
           body: JSON.stringify(data),
         });
 
+        // If the Worker ever returns a redirect by mistake, bail out gracefully.
+        if (res.type === "opaqueredirect" || res.redirected) {
+          alert("We will be with you shortly!");
+          form.reset();
+          return;
+        }
+
         const json = await res.json().catch(() => ({}));
+
         if (res.ok && json.ok) {
           alert("We will be with you shortly!");
           form.reset();
-          // If you set "redirect" in KV, the Worker will 302 automatically.
-          // Otherwise you can manually redirect here if you want.
-          // window.location.href = "/thank-you";
         } else {
           alert(`Something went wrong. ${json?.error ? `Error: ${json.error}` : ""}`);
         }
